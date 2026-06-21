@@ -5,12 +5,12 @@ import { store } from './store';
 import AppRoutes from './routes/AppRoutes';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ToastProvider } from './components/Toast';
-import { seedUsers } from './services/userService';
+import { fetchCurrentUser } from './features/auth/authSlice';
 import './App.css';
 
 function App() {
   useEffect(() => {
-    seedUsers();
+    store.dispatch(fetchCurrentUser());
   }, []);
 
   return (

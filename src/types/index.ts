@@ -11,6 +11,7 @@ export type SafeUser = Omit<User, 'password'>;
 export interface AuthState {
   currentUser: SafeUser | null;
   isAuthenticated: boolean;
+  isInitialized: boolean;
   loading: boolean;
   error: string | null;
 }

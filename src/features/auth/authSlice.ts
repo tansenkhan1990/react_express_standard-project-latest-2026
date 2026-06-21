@@ -2,31 +2,25 @@ import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/tool
 import type { AuthState, SafeUser, LoginCredentials, RegisterData } from '../../types';
 import * as userService from '../../services/userService';
 
-const AUTH_STORAGE_KEY = 'app_current_user';
-
-const loadAuthState = (): SafeUser | null => {
-  try {
-    const data = localStorage.getItem(AUTH_STORAGE_KEY);
-    return data ? JSON.parse(data) : null;
-  } catch {
-    return null;
-  }
-};
-
-const saveAuthState = (user: SafeUser | null): void => {
-  if (user) {
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-  } else {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-  }
-};
-
 const initialState: AuthState = {
-  currentUser: loadAuthState(),
-  isAuthenticated: loadAuthState() !== null,
+  currentUser: null,
+  isAuthenticated: false,
+  isInitialized: false,
   loading: false,
   error: null,
 };
+
+/**
+ * Restore session on app init by calling GET /api/auth/me.
+ * The HTTP-only cookie is sent automatically by the browser.
+ */
+export const fetchCurrentUser = createAsyncThunk<SafeUser | null, void>(
+  'auth/fetchCurrentUser',
+  async () => {
+    const user = await userService.getCurrentUser();
+    return user;
+  }
+);
 
 export const registerUser = createAsyncThunk<
   SafeUser,
@@ -68,8 +62,7 @@ export const loginUser = createAsyncThunk<
 export const logoutUser = createAsyncThunk<void, void>(
   'auth/logoutUser',
   async () => {
-    // In a real app, you might call a logout API endpoint here
-    return;
+    await userService.logoutUser();
   }
 );
 
@@ -82,6 +75,24 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    // Fetch current user (session restore)
+    builder
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action: PayloadAction<SafeUser | null>) => {
+        state.loading = false;
+        state.isInitialized = true;
+        state.currentUser = action.payload;
+        state.isAuthenticated = action.payload !== null;
+      })
+      .addCase(fetchCurrentUser.rejected, (state) => {
+        state.loading = false;
+        state.isInitialized = true;
+        state.currentUser = null;
+        state.isAuthenticated = false;
+      });
+
     // Register
     builder
       .addCase(registerUser.pending, (state) => {
@@ -90,12 +101,13 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action: PayloadAction<SafeUser>) => {
         state.loading = false;
+        state.isInitialized = true;
         state.currentUser = action.payload;
         state.isAuthenticated = true;
-        saveAuthState(action.payload);
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
+        state.isInitialized = true;
         state.error = action.payload || 'Registration failed';
       });
 
@@ -107,23 +119,32 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action: PayloadAction<SafeUser>) => {
         state.loading = false;
+        state.isInitialized = true;
         state.currentUser = action.payload;
         state.isAuthenticated = true;
-        saveAuthState(action.payload);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
+        state.isInitialized = true;
         state.error = action.payload || 'Login failed';
       });
 
     // Logout
     builder
+      .addCase(logoutUser.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(logoutUser.fulfilled, (state) => {
         state.currentUser = null;
         state.isAuthenticated = false;
         state.loading = false;
         state.error = null;
-        saveAuthState(null);
+      })
+      .addCase(logoutUser.rejected, (state) => {
+        state.currentUser = null;
+        state.isAuthenticated = false;
+        state.loading = false;
+        state.error = null;
       });
   },
 });
