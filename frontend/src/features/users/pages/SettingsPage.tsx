@@ -1,18 +1,12 @@
-import { useState, useCallback } from 'react';
-import { useToast } from '../../../components/ui/Toast';
+import { useState } from 'react';
 
 const SettingsPage: React.FC = () => {
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
-  const { showToast } = useToast();
 
-  const handleSave = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      showToast('Settings saved successfully!', 'success');
-    },
-    [showToast]
-  );
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+  };
 
   return (
     <div className="page-settings">
