@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../hooks/useAppSelector';
+import Loading from '../components/ui/Loading';
 
 interface PrivateRouteProps {
   children?: React.ReactNode;
@@ -12,12 +13,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const location = useLocation();
 
   if (!isInitialized) {
-    return (
-      <div className="page-loading">
-        <div className="loading-spinner" />
-        <p>Loading...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!isAuthenticated) {
