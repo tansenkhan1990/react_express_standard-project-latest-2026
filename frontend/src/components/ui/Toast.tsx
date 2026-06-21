@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 
-type ToastType = 'success' | 'error' | 'info';
+export type ToastType = 'success' | 'error' | 'info';
 
 interface Toast {
   id: string;
@@ -53,11 +53,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({
       {children}
       <div className="toast-container" aria-live="polite">
         {toasts.map((toast) => (
-          <ToastItem
-            key={toast.id}
-            toast={toast}
-            onRemove={removeToast}
-          />
+          <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
         ))}
       </div>
     </ToastContext.Provider>

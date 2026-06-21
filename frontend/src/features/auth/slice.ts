@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { AuthState, SafeUser, LoginCredentials, RegisterData } from '../../types';
-import * as userService from '../../services/userService';
+import { authApi } from './api/authApi';
 
 const initialState: AuthState = {
   currentUser: null,
@@ -12,13 +12,16 @@ const initialState: AuthState = {
 
 /**
  * Restore session on app init by calling GET /api/auth/me.
- * The HTTP-only cookie is sent automatically by the browser.
  */
 export const fetchCurrentUser = createAsyncThunk<SafeUser | null, void>(
   'auth/fetchCurrentUser',
   async () => {
-    const user = await userService.getCurrentUser();
-    return user;
+    try {
+      const user = await authApi.me();
+      return user;
+    } catch {
+      return null;
+    }
   }
 );
 
@@ -28,12 +31,7 @@ export const registerUser = createAsyncThunk<
   { rejectValue: string }
 >('auth/registerUser', async (data, { rejectWithValue }) => {
   try {
-    const user = await userService.registerUser(
-      data.name,
-      data.email,
-      data.password
-    );
-    return user;
+    return await authApi.register(data.name, data.email, data.password);
   } catch (error) {
     return rejectWithValue(
       error instanceof Error ? error.message : 'Registration failed'
@@ -47,11 +45,7 @@ export const loginUser = createAsyncThunk<
   { rejectValue: string }
 >('auth/loginUser', async (credentials, { rejectWithValue }) => {
   try {
-    const user = await userService.loginUser(
-      credentials.email,
-      credentials.password
-    );
-    return user;
+    return await authApi.login(credentials.email, credentials.password);
   } catch (error) {
     return rejectWithValue(
       error instanceof Error ? error.message : 'Login failed'
@@ -62,7 +56,7 @@ export const loginUser = createAsyncThunk<
 export const logoutUser = createAsyncThunk<void, void>(
   'auth/logoutUser',
   async () => {
-    await userService.logoutUser();
+    await authApi.logout();
   }
 );
 
@@ -75,17 +69,20 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Fetch current user (session restore)
+    /* ---------- fetchCurrentUser (session restore) ---------- */
     builder
       .addCase(fetchCurrentUser.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchCurrentUser.fulfilled, (state, action: PayloadAction<SafeUser | null>) => {
-        state.loading = false;
-        state.isInitialized = true;
-        state.currentUser = action.payload;
-        state.isAuthenticated = action.payload !== null;
-      })
+      .addCase(
+        fetchCurrentUser.fulfilled,
+        (state, action: PayloadAction<SafeUser | null>) => {
+          state.loading = false;
+          state.isInitialized = true;
+          state.currentUser = action.payload;
+          state.isAuthenticated = action.payload !== null;
+        }
+      )
       .addCase(fetchCurrentUser.rejected, (state) => {
         state.loading = false;
         state.isInitialized = true;
@@ -93,7 +90,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       });
 
-    // Register
+    /* ---------- register ---------- */
     builder
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
@@ -111,7 +108,7 @@ const authSlice = createSlice({
         state.error = action.payload || 'Registration failed';
       });
 
-    // Login
+    /* ---------- login ---------- */
     builder
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -129,7 +126,7 @@ const authSlice = createSlice({
         state.error = action.payload || 'Login failed';
       });
 
-    // Logout
+    /* ---------- logout ---------- */
     builder
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;

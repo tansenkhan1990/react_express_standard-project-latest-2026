@@ -1,12 +1,19 @@
 import { Link } from 'react-router-dom';
-import { useAppSelector } from '../hooks/useAppSelector';
+import { useAppSelector } from '../../../hooks/useAppSelector';
+import { formatDate } from '../../../utils/date';
 
-const Dashboard: React.FC = () => {
+const DashboardPage: React.FC = () => {
   const { currentUser } = useAppSelector((state) => state.auth);
 
   const stats = [
     { label: 'Account Status', value: 'Active', icon: '🟢' },
-    { label: 'Member Since', value: currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'N/A', icon: '📅' },
+    {
+      label: 'Member Since',
+      value: currentUser?.createdAt
+        ? formatDate(currentUser.createdAt)
+        : 'N/A',
+      icon: '📅',
+    },
     { label: 'Account Type', value: 'Standard', icon: '👤' },
   ];
 
@@ -73,4 +80,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardPage;

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
-import { useToast } from '../components/Toast';
+import { useToast } from '../../../components/ui/Toast';
 
-const Settings: React.FC = () => {
+const SettingsPage: React.FC = () => {
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const { showToast } = useToast();
@@ -63,7 +63,7 @@ const Settings: React.FC = () => {
             <div className="setting-info">
               <span className="setting-label">Session Management</span>
               <span className="setting-desc">
-                Your session persists across page refreshes via localStorage
+                Your session persists via HTTP-only cookies
               </span>
             </div>
             <span className="setting-badge">Active</span>
@@ -78,4 +78,4 @@ const Settings: React.FC = () => {
   );
 };
 
-export default Settings;
+export default SettingsPage;

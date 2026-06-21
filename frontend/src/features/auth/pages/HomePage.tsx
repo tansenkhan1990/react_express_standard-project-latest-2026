@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import { useAppSelector } from '../hooks/useAppSelector';
+import { useAppSelector } from '../../../hooks/useAppSelector';
 
-const Home: React.FC = () => {
+const HomePage: React.FC = () => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   return (
@@ -17,7 +17,7 @@ const Home: React.FC = () => {
           <p className="hero-subtitle">
             A production-grade React application demonstrating modern state
             management with Redux Toolkit, protected routing, form validation,
-            and industry best practices — all in a backend-free environment.
+            and industry best practices.
           </p>
           <div className="hero-actions">
             {isAuthenticated ? (
@@ -73,8 +73,8 @@ const Home: React.FC = () => {
             <div className="feature-icon">⚛️</div>
             <h3>React 19 + TypeScript</h3>
             <p>
-              Built with the latest React version and full TypeScript support for
-              type safety and better developer experience.
+              Built with the latest React version and full TypeScript support
+              for type safety and better developer experience.
             </p>
           </div>
           <div className="feature-card">
@@ -89,16 +89,8 @@ const Home: React.FC = () => {
             <div className="feature-icon">🛣️</div>
             <h3>Protected Routing</h3>
             <p>
-              Public and private route guards with React Router v6. Unauthorized
-              users are redirected to login with preserved navigation state.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">📁</div>
-            <h3>JSON Database</h3>
-            <p>
-              A localStorage-backed persistence layer seeded from a JSON file,
-              simulating a real database without a backend server.
+              Public and private route guards with React Router v6.
+              Unauthorized users are redirected to login.
             </p>
           </div>
           <div className="feature-card">
@@ -110,11 +102,19 @@ const Home: React.FC = () => {
             </p>
           </div>
           <div className="feature-card">
+            <div className="feature-icon">🔐</div>
+            <h3>HTTP-Only Cookies</h3>
+            <p>
+              JWT-based authentication with HTTP-only cookies — secure against
+              XSS attacks, with automatic credentials handling.
+            </p>
+          </div>
+          <div className="feature-card">
             <div className="feature-icon">🏗️</div>
             <h3>Best Practices</h3>
             <p>
-              Clean project structure, separation of concerns, custom hooks,
-               typed Redux patterns, and responsive design.
+              Feature-based architecture, separation of concerns, typed Redux,
+              axios client layer, and responsive design.
             </p>
           </div>
         </div>
@@ -123,4 +123,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default HomePage;

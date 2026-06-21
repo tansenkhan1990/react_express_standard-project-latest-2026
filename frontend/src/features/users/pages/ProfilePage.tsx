@@ -1,6 +1,7 @@
-import { useAppSelector } from '../hooks/useAppSelector';
+import { useAppSelector } from '../../../hooks/useAppSelector';
+import { formatDate } from '../../../utils/date';
 
-const Profile: React.FC = () => {
+const ProfilePage: React.FC = () => {
   const { currentUser } = useAppSelector((state) => state.auth);
 
   const profileDetails = [
@@ -9,11 +10,7 @@ const Profile: React.FC = () => {
     {
       label: 'Member Since',
       value: currentUser?.createdAt
-        ? new Date(currentUser.createdAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })
+        ? formatDate(currentUser.createdAt)
         : 'N/A',
     },
     { label: 'User ID', value: currentUser?.id },
@@ -52,4 +49,4 @@ const Profile: React.FC = () => {
   );
 };
 
-export default Profile;
+export default ProfilePage;

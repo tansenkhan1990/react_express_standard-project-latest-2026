@@ -1,13 +1,15 @@
 import { memo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../hooks/useAppDispatch';
-import { useAppSelector } from '../hooks/useAppSelector';
-import { logoutUser } from '../features/auth/authSlice';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { logoutUser } from '../../features/auth/slice';
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isAuthenticated, currentUser } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, currentUser } = useAppSelector(
+    (state) => state.auth
+  );
 
   const handleLogout = useCallback(async () => {
     await dispatch(logoutUser());
@@ -18,7 +20,9 @@ const Header: React.FC = () => {
     <header className="header">
       <div className="header-container">
         <Link to="/" className="header-logo">
-          <span className="header-logo-icon" aria-hidden="true">⚛️</span>
+          <span className="header-logo-icon" aria-hidden="true">
+            ⚛️
+          </span>
           <span>React Pro</span>
         </Link>
 

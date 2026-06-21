@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import { Outlet } from 'react-router-dom';
-import Header from './Header';
+import Header from '../components/ui/Header';
 
-const Layout: React.FC = () => {
+const DashboardLayout: React.FC = () => {
   return (
     <div className="app-layout">
       <Header />
@@ -21,7 +21,7 @@ const Layout: React.FC = () => {
   );
 };
 
-const MemoizedLayout = memo(Layout);
-MemoizedLayout.displayName = 'Layout';
+const MemoizedDashboardLayout = memo(DashboardLayout);
+MemoizedDashboardLayout.displayName = 'DashboardLayout';
 
-export default MemoizedLayout;
+export default MemoizedDashboardLayout;
