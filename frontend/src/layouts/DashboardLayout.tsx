@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from '../components/ui/Header';
 
@@ -21,7 +20,4 @@ const DashboardLayout: React.FC = () => {
   );
 };
 
-const MemoizedDashboardLayout = memo(DashboardLayout);
-MemoizedDashboardLayout.displayName = 'DashboardLayout';
-
-export default MemoizedDashboardLayout;
+export default DashboardLayout;

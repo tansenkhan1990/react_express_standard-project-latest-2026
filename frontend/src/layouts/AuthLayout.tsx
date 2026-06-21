@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { Outlet } from 'react-router-dom';
 
 const AuthLayout: React.FC = () => {
@@ -17,7 +16,4 @@ const AuthLayout: React.FC = () => {
   );
 };
 
-const MemoizedAuthLayout = memo(AuthLayout);
-MemoizedAuthLayout.displayName = 'AuthLayout';
-
-export default MemoizedAuthLayout;
+export default AuthLayout;

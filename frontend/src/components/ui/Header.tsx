@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useAppSelector } from '../../hooks/useAppSelector';
@@ -75,7 +75,4 @@ const Header: React.FC = () => {
   );
 };
 
-const MemoizedHeader = memo(Header);
-MemoizedHeader.displayName = 'Header';
-
-export default MemoizedHeader;
+export default Header;
