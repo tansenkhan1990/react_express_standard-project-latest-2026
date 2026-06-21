@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# Project README
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Authentication workflow
 
-Currently, two official plugins are available:
+This project uses a centralized auth flow handled by Redux thunks and a small API wrapper. The primary flows are:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Login: UI -> `loginUser` thunk -> `authApi.login` -> POST `/api/auth/login` -> update `auth` slice -> navigate to dashboard
+- Register: UI -> `registerUser` thunk -> `authApi.register` -> POST `/api/auth/register` -> update `auth` slice -> navigate to dashboard
+- Session restore: App init -> `fetchCurrentUser` thunk -> `authApi.me` -> GET `/api/auth/me` -> populate `auth` slice
 
-## React Compiler
+Key files:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `frontend/src/features/auth/slice.ts` — Redux thunks and `auth` slice
+- `frontend/src/features/auth/api/authApi.ts` — wrapper calling `api.post` / `api.get` for `/auth/*`
+- `frontend/src/services/api.ts` and `frontend/src/services/axios.ts` — axios client with `baseURL: '/api'`
+- `frontend/src/features/auth/components/LoginForm.tsx` and `RegisterForm.tsx` — UI dispatching thunks
+- `frontend/src/app/App.tsx` — dispatches `fetchCurrentUser()` on startup
+- `frontend/src/routes/PrivateRoute.tsx` and `PublicRoute.tsx` — route guards using `auth` state
 
-## Expanding the ESLint configuration
+## Quick flowchart (mermaid)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```mermaid
+flowchart TD
+  U[User] --> LF(LoginForm)
+  LF -->|submit| DispatchLogin[Dispatch `loginUser` thunk]
+  DispatchLogin --> AuthApi[call `authApi.login`]
+  AuthApi -->|POST /api/auth/login| Backend[Backend /api/auth/login]
+  Backend -->|200 user| ThunkFulfilled[Thunk fulfilled]
+  ThunkFulfilled --> UpdateStore[auth slice: set currentUser, isAuthenticated]
+  UpdateStore --> Navigate[Router navigate to /dashboard]
+  Navigate --> PrivateRoute[PrivateRoute allows access]
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+  Backend -->|4xx/5xx| ThunkRejected[Thunk rejected]
+  ThunkRejected --> ShowError[Display error in form]
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+  subgraph RegisterFlow
+    U --> RF(RegisterForm)
+    RF -->|submit| DispatchRegister[Dispatch `registerUser`]
+    DispatchRegister --> AuthApiReg[call `authApi.register`]
+    AuthApiReg -->|POST /api/auth/register| Backend
+    Backend -->|200 user| RegFulfilled[Thunk fulfilled]
+    RegFulfilled --> UpdateStore
+    UpdateStore --> Navigate
+  end
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+  subgraph AppInit
+    Start[App start] --> DispatchMe[Dispatch `fetchCurrentUser`]
+    DispatchMe --> AuthApiMe[call `authApi.me`]
+    AuthApiMe -->|GET /api/auth/me| Backend
+    Backend -->|200 user| MeFulfilled[Thunk fulfilled]
+    MeFulfilled --> UpdateStore
+  end
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Notes and recommendations
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Current approach (Redux thunks + auth slice) is appropriate when auth state is global and used by route guards and many components.
+- If you want less boilerplate and better caching/features for many API endpoints, consider migrating non-auth APIs (or auth calls) to RTK Query.
+- Keep the `auth` slice as the single source of truth for `currentUser` and `isAuthenticated` so route guards (`PrivateRoute` / `PublicRoute`) and layout components remain simple.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+Created by assistant to document auth flow and API endpoints used by the frontend and backend.
