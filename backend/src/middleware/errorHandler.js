@@ -1,16 +1,16 @@
 /**
- * Custom application error with HTTP status code.
+ * Creates an error with an HTTP status code.
+ * Can be used with or without `new`.
+ *
+ * @param {string} message - Human-readable error message
+ * @param {number} statusCode - HTTP status code (default 400)
+ * @returns {Error}
  */
-export class AppError extends Error {
-  /**
-   * @param {string} message - Human-readable error message
-   * @param {number} statusCode - HTTP status code (default 400)
-   */
-  constructor(message, statusCode = 400) {
-    super(message);
-    this.name = 'AppError';
-    this.statusCode = statusCode;
-  }
+export function AppError(message, statusCode = 400) {
+  const err = new Error(message);
+  err.name = 'AppError';
+  err.statusCode = statusCode;
+  return err;
 }
 
 /**
